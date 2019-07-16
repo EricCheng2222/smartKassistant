@@ -71,4 +71,5 @@ private:
 	void addWord(string s);
 	void visitWord(string s, vector<string> &vect, int index);
 	void addNextPointer(int src, int dst);
+    void addReplyPointer(int src, int dst);
 };

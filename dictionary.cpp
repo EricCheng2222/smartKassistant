@@ -50,7 +50,35 @@ void dictionary::feedInput(vector<string> &input){
 }
 
 
-void dictionary::feedOutput(vector<string>);
+void dictionary::feedOutput(vector<string> &vectIn, vector<string> &vectOut){
+    int in, out;
+    
+    //add none-existing words
+    for(unsigned int i=0; i<vectIn.size(); i++){
+        in =  isExist(vectIn[i]);
+        if(in==-1)
+            addWord(vectIn[i]);
+    }
+    for(unsigned int i=0; i<vectOut.size(); i++){
+        out =  isExist(vectOut[i]);
+        if(out==-1)
+            addWord(vectOut[i]);
+    }
+    
+    //add reply pointer
+    for (unsigned long i=0; i<vectIn.size(); i++) {
+        in =  isExist(vectIn[i]);
+        for (unsigned long j=0; j<vectOut; j++) {
+            out = isExist(vectOut[j]);
+            addReplyPointer(in, out);
+        }
+    }
+    
+    //add next pointer
+    for (unsigned int i=0; i<vectOut.size(); i++) {
+        
+    }
+}
 
 
 
@@ -85,6 +113,7 @@ void dictionary::visitWord(string s, vector<string> &vect, int index){
 }
 
 void dictionary::addNextPointer(int src, int dst){
+    // if such pointer exist
 	for (unsigned long i=0; i<vocab[src].nextVect.size(); i++){
 		if(vocab[src].nextVect[i] == &vocab[dst]){
 			if(vocab[src].nextVect[i].confidence<=1.0)
@@ -92,4 +121,22 @@ void dictionary::addNextPointer(int src, int dst){
 			return;
 		}
 	}
+    
+    
+    //if such pointer not exist
+}
+
+
+void dictionary::addReplyPointer(int src, int dst){
+    // if such pointer exist
+    for (unsigned long i=0; i<vocab[src].replyVect.size(); i++){
+        if(vocab[src].replyVect[i] == &vocab[dst]){
+            if(vocab[src].replyVect[i].confidence<=1.0)
+                vocab[src].replyVect[i].confidence += 0.01;
+            return;
+        }
+    }
+    
+    
+    //if such pointer not exist
 }
