@@ -20,7 +20,7 @@ struct dictionaryItem{
 	int ID;
 	string word;
 	vector<confAndPointerNext> nextVect;
-	vector<confAndPointerReply>replyVect;
+	vector<confAndPointerReply> replyVect;
 	float pointedConfidence = 0.0;
 
 	void print(){
@@ -28,11 +28,11 @@ struct dictionaryItem{
 		printf("<%s>", word.c_str);
 		printf("NEXT:");
 		for(unsigned long i=0; i<nextVect.size(); i++)	
-			printf("%d ", nextVect[i].ID);
+			printf("%d ", nextVect[i].next->ID);
 		
 		printf("REPLY:");
 		for(unsigned long i=0; i<replyVect.size(); i++)	
-			printf("%d ", replyVect[i].ID);
+			printf("%d ", replyVect[i].reply->ID);
 	}
 
 };
@@ -40,7 +40,7 @@ struct dictionaryItem{
 struct confAndPointerNext{
 	dictionaryItem* next;
 	float confidence;
-}
+};
 
 struct confAndPointerReply{
 	dictionaryItem* reply;
@@ -60,7 +60,7 @@ public:
 	void popFirstItem();
 	float firstResponseConf();
 	void feedInput(vector<string> &input);
-	void feedOutput(vector<string> &suggestedOutput);
+	void feedOutput(vector<string> &input, vector<string> &suggestedOutput);
 
 
 private:

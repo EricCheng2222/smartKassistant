@@ -68,7 +68,7 @@ void dictionary::feedOutput(vector<string> &vectIn, vector<string> &vectOut){
     //add reply pointer
     for (unsigned long i=0; i<vectIn.size(); i++) {
         in =  isExist(vectIn[i]);
-        for (unsigned long j=0; j<vectOut; j++) {
+        for (unsigned long j=0; j<vectOut.size(); j++) {
             out = isExist(vectOut[j]);
             addReplyPointer(in, out);
         }
