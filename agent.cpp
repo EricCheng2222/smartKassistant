@@ -1,7 +1,7 @@
 
 
 
-
+#include "dictionary.cpp"
 #include "agent.hpp"
 #include <string>
 #include <ctype.h>
@@ -22,7 +22,7 @@ void agent::action(){
     }
     else if(strcmp("LOAD", tokens[0].c_str)==0){
         printf("loading files...");
-        dict.save();
+        dict.load();
     }
     else{
         dict.feedInput(tokens);

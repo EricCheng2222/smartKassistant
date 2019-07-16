@@ -6,7 +6,11 @@
 
 #include "dictionary.hpp"
 
-void dictionary::save();
+void dictionary::save(){
+	for(unsigned long i=0; i<vocab.size(); i++){
+		vocab[i].print();
+	}
+}
 
 
 void dictionary::load();
