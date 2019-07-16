@@ -35,17 +35,17 @@ float dictionary::firstResponseConf(){
 			maxIte = i;
 		}
 	}
-	
 }
 
 
 
 void dictionary::feedInput(vector<string> &input){
-	for(unsigned long i=0; i=input.size(); i++){
+	for(unsigned long i=0; i=input.size()-1; i++){
 		int isExistInput = isExist(input[i]);
 		if(isExistInput==-1)
 			addWord(input[i]);
-		visitWord(input[i], input);//this function is for learning the next word
+		learnNextWord(input[i], input[i+1]);
+        visitWordToReply(input[i]);//visit input[i] to determine reply word
 	}
 }
 
@@ -75,8 +75,13 @@ void dictionary::feedOutput(vector<string> &vectIn, vector<string> &vectOut){
     }
     
     //add next pointer
-    for (unsigned int i=0; i<vectOut.size(); i++) {
-        
+    int dst, src;
+    for (unsigned int i=0; i<vectOut.size()-1; i++) {
+        for (unsigned int j=i+1; j<vectOut.size(); j++) {
+            dst = isExist(vectOut[i]);
+            src = isExist(vectOut[j]);
+            addNextPointer(dst, src);
+        }
     }
 }
 
@@ -98,18 +103,10 @@ void dictionary::addWord(string s){
 }
 
 
-void dictionary::visitWord(string s, vector<string> &vect, int index){
-	/*NOT DONE!!!!!!*/
-	int sIndex = isExist(s);
-	int nextIndex;
-	for(unsigned long i=index; i<vect.size(); i++){
-		nextIndex = isExist(vect[i]);
-		if(nextIndex==-1){
-			addWord(vect[i]);
-			nextIndex = isExist(vect[i]);
-		}
-		addNextPointer(sIndex, nextIndex);
-	}
+void dictionary::learnNextWord(string before, string after){
+	int sIndex = isExist(before);
+	int nextIndex = isExist(after);
+	addNextPointer(sIndex, nextIndex);
 }
 
 void dictionary::addNextPointer(int src, int dst){
@@ -139,4 +136,14 @@ void dictionary::addReplyPointer(int src, int dst){
     
     
     //if such pointer not exist
+}
+
+
+void dictionary::visitWordToReply(string s){//heat map for reply
+    int index = isExist(s);
+    for (unsigned int i=0; i<vocab[index].replyVect.size(); i++) {
+        //need to deal with already existing item
+        outVocab.push_back(vocab[index].replyVect[i]);
+        outVocab[outVocab.end()].pointedConfidence += 0.01;
+    }
 }
