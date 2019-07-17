@@ -10,6 +10,7 @@
 #include "agent.hpp"
 #include <string>
 #include <ctype.h>
+#include <string.h>
 using namespace std;
 
 void agent::getInput(){
@@ -20,12 +21,12 @@ void agent::getInput(){
 
 void agent::action(){
     float confidence;
-    if(strcmp("QUIT", tokens[0].c_str)==0){
+    if(strcmp("QUIT", tokens[0].c_str())==0){
         printf("saving files...");
         dict.save();
         return;
     }
-    else if(strcmp("LOAD", tokens[0].c_str)==0){
+    else if(strcmp("LOAD", tokens[0].c_str())==0){
         printf("loading files...");
         dict.load();
     }
@@ -41,7 +42,7 @@ void agent::action(){
             else if(confidence>=0.5){
                 //ask if response correct, yes-->respond, no-->learn
                 char ans;
-                printf("should I reply: %s?", dict.printFirstToken());
+                dict.printFirstToken();
                 ans = getchar();    getchar();//get rid off input
                 tolower(ans);
                 

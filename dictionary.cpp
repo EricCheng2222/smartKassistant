@@ -6,21 +6,34 @@
 
 
 #include "dictionary.hpp"
+#include <string.h>
+
 
 struct confAndPointerNext{
-    dictionaryItem* next;
+    confAndPointerNext(){;}
+    confAndPointerNext(struct dictionaryItem* item){
+        next = item;
+    }
+    struct dictionaryItem* next;
     float confidence;
 };
+
 
 struct confAndPointerReply{
-    dictionaryItem* reply;
+    confAndPointerReply(){;}
+    confAndPointerReply(struct dictionaryItem *item){
+        reply = item;
+    }
+    struct dictionaryItem* reply;
     float confidence;
 };
 
+
 struct dictionaryItem{
+    dictionaryItem(){;}
     int ID;
     string word;
-    vector<confAndPointerNext> nextVect;
+    vector<confAndPointerNext>  nextVect;
     vector<confAndPointerReply> replyVect;
     float pointedConfidence = 0.0;
 
@@ -130,7 +143,7 @@ void dictionary::feedOutput(vector<string> &vectIn, vector<string> &vectOut){
 
 int dictionary::isExist(string s){
 	for(unsigned long i=0; i<vocab.size(); i++){
-		if(strcmp(vocab[i].word.c_str, s.c_str)==0)
+		if(strcmp(vocab[i].word.c_str(), s.c_str())==0)
 			return i;
 	}
 	return -1;
@@ -153,7 +166,7 @@ void dictionary::learnNextWord(string before, string after){
 void dictionary::addNextPointer(int src, int dst){
     // if such pointer exist
 	for (unsigned long i=0; i<vocab[src].nextVect.size(); i++){
-		if(vocab[src].nextVect[i] == &vocab[dst]){
+		if(vocab[src].nextVect[i].next == &vocab[dst]){
 			if(vocab[src].nextVect[i].confidence<=1.0)
 				vocab[src].nextVect[i].confidence += 0.01;
 			return;
@@ -162,7 +175,7 @@ void dictionary::addNextPointer(int src, int dst){
     
     
     //if such pointer not exist
-    vocab[src].push_back(struct confAndPointerNext*(&vocab[dst]));
+    vocab[src].push_back(confAndPointerNext(&vocab[dst]));
     if(vocab[src].nextVect[vocab[src].nextVect.size()-1].confidence<=1.0)
         vocab[src].nextVect[vocab[src].nextVect.size()-1].confidence += 0.01;
 }
@@ -171,7 +184,7 @@ void dictionary::addNextPointer(int src, int dst){
 void dictionary::addReplyPointer(int src, int dst){
     // if such pointer exist
     for (unsigned long i=0; i<vocab[src].replyVect.size(); i++){
-        if(vocab[src].replyVect[i] == &vocab[dst]){
+        if(vocab[src].replyVect[i].reply == &vocab[dst]){
             if(vocab[src].replyVect[i].confidence<=1.0)
                 vocab[src].replyVect[i].confidence += 0.01;
             return;
@@ -180,7 +193,7 @@ void dictionary::addReplyPointer(int src, int dst){
     
     
     //if such pointer not exist
-    vocab[src].push_back(struct confAndPointerReply*(&vocab[dst]));
+    vocab[src].push_back(confAndPointerReply*(&vocab[dst]));
     if(vocab[src].replyVect[vocab[src].replyVect.size()-1].confidence<=1.0)
         vocab[src].replyVect[vocab[src].replyVect.size()-1].confidence += 0.01;
 
@@ -201,7 +214,7 @@ void dictionary::visitWordToReply(string s){//heat map for reply
         }
         if(found == false){
             outVocab.push_back(vocab[index].replyVect[i]);
-            outVocab[outVocab.end()].pointedConfidence += 0.01;
+            outVocab.back().pointedConfidence += 0.01;
         }
     }
 }
