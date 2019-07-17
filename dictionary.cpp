@@ -13,7 +13,9 @@ void dictionary::save(){
 }
 
 
-void dictionary::load();
+void dictionary::load(){
+    ;
+}
 
 
 void dictionary::printFirstToken(){
@@ -121,6 +123,9 @@ void dictionary::addNextPointer(int src, int dst){
     
     
     //if such pointer not exist
+    vocab[src].push_back(struct confAndPointerNext*(&vocab[dst]));
+    if(vocab[src].nextVect[nextVect.size()-1].confidence<=1.0)
+        vocab[src].nextVect[nextVect.size()-1].confidence += 0.01;
 }
 
 
@@ -136,14 +141,27 @@ void dictionary::addReplyPointer(int src, int dst){
     
     
     //if such pointer not exist
+    vocab[src].push_back(struct confAndPointerReply*(&vocab[dst]));
+    if(vocab[src].replyVect[replyVect.size()-1].confidence<=1.0)
+        vocab[src].replyVect[replyVect.size()-1].confidence += 0.01;
+
 }
 
 
 void dictionary::visitWordToReply(string s){//heat map for reply
     int index = isExist(s);
     for (unsigned int i=0; i<vocab[index].replyVect.size(); i++) {
-        //need to deal with already existing item
-        outVocab.push_back(vocab[index].replyVect[i]);
-        outVocab[outVocab.end()].pointedConfidence += 0.01;
+        for(unsigned int j=0; j<outVocab.size(); j++){
+            bool found = false;
+            if(strcmp(outVocab[j].word.c_str(), vocab[index].replyVect[i].reply->word.c_str())){
+                outVocab[j].pointedConfidence += 0.01;
+                found = true;
+                break;
+            }
+        }
+        if(found == false){
+            outVocab.push_back(vocab[index].replyVect[i]);
+            outVocab[outVocab.end()].pointedConfidence += 0.01;
+        }
     }
 }
