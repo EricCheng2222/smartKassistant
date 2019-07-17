@@ -1,7 +1,12 @@
 
 
 
-#include "dictionary.cpp"
+
+
+#ifndef agent_c
+#define agent_c
+
+#include "dictionary.hpp"
 #include "agent.hpp"
 #include <string>
 #include <ctype.h>
@@ -77,3 +82,4 @@ void agent::tokenize(){
 }
 
 
+#endif /* TDNet_h */

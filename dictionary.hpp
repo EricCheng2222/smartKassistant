@@ -7,6 +7,8 @@
 
 
 
+#ifndef dict_h
+#define dict_h
 
 
 #include <string>
@@ -23,14 +25,18 @@ struct dictionaryItem{
 	vector<confAndPointerReply> replyVect;
 	float pointedConfidence = 0.0;
 
+
 	void print(){
-		printf("<%d>", ID);
-		printf("<%s>", word.c_str);
-		printf("NEXT:");
+		printf("%d ", ID);
+		printf("%s ", word.c_str);
+		//printf("NEXT:");
+		printf("%d ", nextVect.size());
 		for(unsigned long i=0; i<nextVect.size(); i++)	
 			printf("%d ", nextVect[i].next->ID);
 		
-		printf("REPLY:");
+
+		//printf("REPLY:");
+		printf("%d ", replyVect.size());
 		for(unsigned long i=0; i<replyVect.size(); i++)	
 			printf("%d ", replyVect[i].reply->ID);
 	}
@@ -67,10 +73,13 @@ private:
 	int maxIte;
 	vector<dictionaryItem> vocab;
 	vector<dictionaryItem> outVocab;
-	bool isExist(string s);
+	int isExist(string s);
+	void learnNextWord(string before, string next);
 	void addWord(string s);
 	void visitWord(string s, vector<string> &vect, int index);
 	void addNextPointer(int src, int dst);
     void addReplyPointer(int src, int dst);
     void visitWordToReply(string s);
 };
+
+#endif /* TDNet_h */

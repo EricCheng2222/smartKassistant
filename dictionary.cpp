@@ -1,10 +1,49 @@
 
 
 
-
+#ifndef dict_c
+#define dict_c
 
 
 #include "dictionary.hpp"
+
+struct confAndPointerNext{
+    dictionaryItem* next;
+    float confidence;
+};
+
+struct confAndPointerReply{
+    dictionaryItem* reply;
+    float confidence;
+};
+
+struct dictionaryItem{
+    int ID;
+    string word;
+    vector<confAndPointerNext> nextVect;
+    vector<confAndPointerReply> replyVect;
+    float pointedConfidence = 0.0;
+
+
+    void print(){
+        printf("%d ", ID);
+        printf("%s ", word.c_str);
+        //printf("NEXT:");
+        printf("%d ", nextVect.size());
+        for(unsigned long i=0; i<nextVect.size(); i++)  
+            printf("%d ", nextVect[i].next->ID);
+        
+
+        //printf("REPLY:");
+        printf("%d ", replyVect.size());
+        for(unsigned long i=0; i<replyVect.size(); i++) 
+            printf("%d ", replyVect[i].reply->ID);
+    }
+
+};
+
+
+
 
 void dictionary::save(){
 	for(unsigned long i=0; i<vocab.size(); i++){
@@ -24,7 +63,7 @@ void dictionary::printFirstToken(){
 
 
 void dictionary::popFirstItem(){
-	outVocab.erase(outVocab.begin() + matIte);
+	outVocab.erase(outVocab.begin() + maxIte);
 }
 
 
@@ -124,8 +163,8 @@ void dictionary::addNextPointer(int src, int dst){
     
     //if such pointer not exist
     vocab[src].push_back(struct confAndPointerNext*(&vocab[dst]));
-    if(vocab[src].nextVect[nextVect.size()-1].confidence<=1.0)
-        vocab[src].nextVect[nextVect.size()-1].confidence += 0.01;
+    if(vocab[src].nextVect[vocab[src].nextVect.size()-1].confidence<=1.0)
+        vocab[src].nextVect[vocab[src].nextVect.size()-1].confidence += 0.01;
 }
 
 
@@ -142,17 +181,18 @@ void dictionary::addReplyPointer(int src, int dst){
     
     //if such pointer not exist
     vocab[src].push_back(struct confAndPointerReply*(&vocab[dst]));
-    if(vocab[src].replyVect[replyVect.size()-1].confidence<=1.0)
-        vocab[src].replyVect[replyVect.size()-1].confidence += 0.01;
+    if(vocab[src].replyVect[vocab[src].replyVect.size()-1].confidence<=1.0)
+        vocab[src].replyVect[vocab[src].replyVect.size()-1].confidence += 0.01;
 
 }
 
 
 void dictionary::visitWordToReply(string s){//heat map for reply
     int index = isExist(s);
+    bool found = false;
     for (unsigned int i=0; i<vocab[index].replyVect.size(); i++) {
         for(unsigned int j=0; j<outVocab.size(); j++){
-            bool found = false;
+            found = false;
             if(strcmp(outVocab[j].word.c_str(), vocab[index].replyVect[i].reply->word.c_str())){
                 outVocab[j].pointedConfidence += 0.01;
                 found = true;
@@ -165,3 +205,4 @@ void dictionary::visitWordToReply(string s){//heat map for reply
         }
     }
 }
+#endif /* TDNet_h */

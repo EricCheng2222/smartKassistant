@@ -1,9 +1,11 @@
 
 
 
+#ifndef agent_h
+#define agent_h
 
 
-#include "dictionary.cpp"
+#include "dictionary.hpp"
 #include <iostream>
 #include <cstdio>
 #include <cstdlib>
@@ -23,14 +25,14 @@ public:
 private:
     string input, suggestedReply;
     vector<string> tokens;
-    
+    dictionary dict;
     
     void tokenize();//for input
     void parse();   //for suggestedReply
     
 };
 
-
+#endif /* TDNet_h */
 
 
 

@@ -3,7 +3,7 @@
 
 
 #include <cstdio>
-#include "agent.cpp"
+#include "agent.hpp"
 using namespace std;
 
 int main(){
