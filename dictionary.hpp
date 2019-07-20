@@ -15,9 +15,55 @@
 #include <vector>
 using namespace std;
 
-struct confAndPointerReply;
-struct confAndPointerNext;
+
+
 struct dictionaryItem;
+struct confAndPointerNext{
+    confAndPointerNext(){;}
+    confAndPointerNext(struct dictionaryItem* item){
+        next = item;
+    }
+    struct dictionaryItem* next;
+    float confidence;
+};
+
+
+struct confAndPointerReply{
+    confAndPointerReply(){;}
+    confAndPointerReply(struct dictionaryItem *item){
+        reply = item;
+    }
+    struct dictionaryItem* reply;
+    float confidence;
+};
+struct dictionaryItem{
+    dictionaryItem(int gID){
+        ID = gID;
+    }
+    int ID;
+    string word;
+    vector<confAndPointerNext>  nextVect;
+    vector<confAndPointerReply> replyVect;
+    float pointedConfidence = 0.0;
+    
+    
+    void print(){
+        printf("%d ", ID);
+        printf("%s ", word.c_str());
+        //printf("NEXT:");
+        printf("%d ", nextVect.size());
+        for(unsigned long i=0; i<nextVect.size(); i++)
+            printf("%d ", nextVect[i].next->ID);
+        
+        
+        //printf("REPLY:");
+        printf("%d ", replyVect.size());
+        for(unsigned long i=0; i<replyVect.size(); i++)
+            printf("%d ", replyVect[i].reply->ID);
+    }
+    
+};
+
 
 
 class dictionary{
@@ -33,6 +79,7 @@ public:
 
 
 private:
+    int globalID = 0;
 	int maxIte;
 	vector<dictionaryItem> vocab;
 	vector<dictionaryItem> outVocab;

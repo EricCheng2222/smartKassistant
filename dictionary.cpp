@@ -9,51 +9,10 @@
 #include <string.h>
 
 
-struct confAndPointerNext{
-    confAndPointerNext(){;}
-    confAndPointerNext(struct dictionaryItem* item){
-        next = item;
-    }
-    struct dictionaryItem* next;
-    float confidence;
-};
 
 
-struct confAndPointerReply{
-    confAndPointerReply(){;}
-    confAndPointerReply(struct dictionaryItem *item){
-        reply = item;
-    }
-    struct dictionaryItem* reply;
-    float confidence;
-};
 
 
-struct dictionaryItem{
-    dictionaryItem(){;}
-    int ID;
-    string word;
-    vector<confAndPointerNext>  nextVect;
-    vector<confAndPointerReply> replyVect;
-    float pointedConfidence = 0.0;
-
-
-    void print(){
-        printf("%d ", ID);
-        printf("%s ", word.c_str);
-        //printf("NEXT:");
-        printf("%d ", nextVect.size());
-        for(unsigned long i=0; i<nextVect.size(); i++)  
-            printf("%d ", nextVect[i].next->ID);
-        
-
-        //printf("REPLY:");
-        printf("%d ", replyVect.size());
-        for(unsigned long i=0; i<replyVect.size(); i++) 
-            printf("%d ", replyVect[i].reply->ID);
-    }
-
-};
 
 
 
@@ -71,7 +30,7 @@ void dictionary::load(){
 
 
 void dictionary::printFirstToken(){
-	printf("%s ", outVocab[maxIte].word);
+	printf("%s ", outVocab[maxIte].word.c_str());
 }
 
 
@@ -89,12 +48,13 @@ float dictionary::firstResponseConf(){
 			maxIte = i;
 		}
 	}
+    return maxConf;
 }
 
 
 
 void dictionary::feedInput(vector<string> &input){
-	for(unsigned long i=0; i=input.size()-1; i++){
+	for(unsigned long i=0; i<input.size()-1; i++){
 		int isExistInput = isExist(input[i]);
 		if(isExistInput==-1)
 			addWord(input[i]);
@@ -130,13 +90,12 @@ void dictionary::feedOutput(vector<string> &vectIn, vector<string> &vectOut){
     
     //add next pointer
     int dst, src;
-    for (unsigned int i=0; i<vectOut.size()-1; i++) {
-        for (unsigned int j=i+1; j<vectOut.size(); j++) {
-            dst = isExist(vectOut[i]);
-            src = isExist(vectOut[j]);
-            addNextPointer(dst, src);
-        }
+    for (unsigned int i=0; i<vectOut.size()-2; i++) {
+        dst = isExist(vectOut[i]);
+        src = isExist(vectOut[i+1]);
+        addNextPointer(dst, src);
     }
+    
 }
 
 
@@ -151,7 +110,7 @@ int dictionary::isExist(string s){
 
 
 void dictionary::addWord(string s){
-	vocab.push_back(dictionaryItem());
+    vocab.push_back(dictionaryItem(globalID++));
 	unsigned long ite = vocab.size() - 1;
 	vocab[ite].word = s;
 }
@@ -175,7 +134,7 @@ void dictionary::addNextPointer(int src, int dst){
     
     
     //if such pointer not exist
-    vocab[src].push_back(confAndPointerNext(&vocab[dst]));
+    vocab[src].nextVect.push_back(confAndPointerNext(&vocab[dst]));
     if(vocab[src].nextVect[vocab[src].nextVect.size()-1].confidence<=1.0)
         vocab[src].nextVect[vocab[src].nextVect.size()-1].confidence += 0.01;
 }
@@ -193,7 +152,7 @@ void dictionary::addReplyPointer(int src, int dst){
     
     
     //if such pointer not exist
-    vocab[src].push_back(confAndPointerReply*(&vocab[dst]));
+    vocab[src].replyVect.push_back(confAndPointerReply(&vocab[dst]));
     if(vocab[src].replyVect[vocab[src].replyVect.size()-1].confidence<=1.0)
         vocab[src].replyVect[vocab[src].replyVect.size()-1].confidence += 0.01;
 
@@ -213,7 +172,7 @@ void dictionary::visitWordToReply(string s){//heat map for reply
             }
         }
         if(found == false){
-            outVocab.push_back(vocab[index].replyVect[i]);
+            outVocab.push_back(*vocab[index].replyVect[i].reply);
             outVocab.back().pointedConfidence += 0.01;
         }
     }

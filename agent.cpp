@@ -14,6 +14,7 @@
 using namespace std;
 
 void agent::getInput(){
+    printf(">");
     getline(cin, input);
     tokenize();
 }
@@ -21,17 +22,17 @@ void agent::getInput(){
 
 void agent::action(){
     float confidence;
-    if(strcmp("QUIT", tokens[0].c_str())==0){
+    if(strcmp("QUIT", inputTokens[0].c_str())==0){
         printf("saving files...");
         dict.save();
         return;
     }
-    else if(strcmp("LOAD", tokens[0].c_str())==0){
+    else if(strcmp("LOAD", inputTokens[0].c_str())==0){
         printf("loading files...");
         dict.load();
     }
     else{
-        dict.feedInput(tokens);
+        dict.feedInput(inputTokens);
         while (true) {
             confidence = dict.firstResponseConf();
             if(confidence>=0.9){
@@ -54,7 +55,7 @@ void agent::action(){
                     printf("please give me suggested reply:");
                     getline(cin, suggestedReply);
                     parse();
-                    dict.feedOutput(suggestedReply);
+                    dict.feedOutput(inputTokens, outputTokens);
                 }
             }
             else{
@@ -62,7 +63,7 @@ void agent::action(){
                 printf("please give me suggested reply:");
                 getline(cin, suggestedReply);
                 parse();
-                dict.feedOutput(suggestedReply);
+                dict.feedOutput(inputTokens, outputTokens);
             }
         }
     }
@@ -70,15 +71,29 @@ void agent::action(){
 
 
 void agent::tokenize(){
-    tokens.clear();
-    tokens.push_back(string());
-    unsigned long lastToken = tokens.size()-1;
+    inputTokens.clear();
+    inputTokens.push_back(string());
+    unsigned long lastToken = inputTokens.size()-1;
     for (unsigned long i=0; i<input.size(); i++) {
         if(input[i]==' '){
-            tokens.push_back(string());
-            lastToken = tokens.size()-1;
+            inputTokens.push_back(string());
+            lastToken = inputTokens.size()-1;
         }
-        tokens[lastToken].push_back(input[i]);
+        inputTokens[lastToken].push_back(input[i]);
+    }
+    ;
+}
+
+void agent::parse(){
+    outputTokens.clear();
+    outputTokens.push_back(string());
+    unsigned long lastToken = outputTokens.size()-1;
+    for (unsigned long i=0; i<suggestedReply.size(); i++) {
+        if(suggestedReply[i]==' '){
+            outputTokens.push_back(string());
+            lastToken = outputTokens.size()-1;
+        }
+        outputTokens[lastToken].push_back(suggestedReply[i]);
     }
 }
 

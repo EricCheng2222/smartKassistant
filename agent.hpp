@@ -24,7 +24,7 @@ public:
     
 private:
     string input, suggestedReply;
-    vector<string> tokens;
+    vector<string> inputTokens, outputTokens;
     dictionary dict;
     
     void tokenize();//for input
