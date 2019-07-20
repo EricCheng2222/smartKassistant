@@ -24,7 +24,7 @@ struct confAndPointerNext{
         next = item;
     }
     struct dictionaryItem* next;
-    float confidence;
+    float confidence = 0.0;
 };
 
 
@@ -34,7 +34,7 @@ struct confAndPointerReply{
         reply = item;
     }
     struct dictionaryItem* reply;
-    float confidence;
+    float confidence = 0.0;
 };
 struct dictionaryItem{
     dictionaryItem(int gID){
@@ -47,19 +47,25 @@ struct dictionaryItem{
     float pointedConfidence = 0.0;
     
     
-    void print(){
-        printf("%d ", ID);
-        printf("%s ", word.c_str());
+    void print(FILE *fp){
+        fprintf(fp, "%d ", ID);
+        fprintf(fp, "%s ", word.c_str());
         //printf("NEXT:");
-        printf("%d ", nextVect.size());
-        for(unsigned long i=0; i<nextVect.size(); i++)
-            printf("%d ", nextVect[i].next->ID);
+        fprintf(fp, "%d ", nextVect.size());
+        for(unsigned long i=0; i<nextVect.size(); i++){
+            fprintf(fp, "%d ", nextVect[i].next->ID);
+            fprintf(fp, "%f ", nextVect[i].confidence);
+        }
+        
         
         
         //printf("REPLY:");
-        printf("%d ", replyVect.size());
-        for(unsigned long i=0; i<replyVect.size(); i++)
-            printf("%d ", replyVect[i].reply->ID);
+        fprintf(fp, "%d ", replyVect.size());
+        for(unsigned long i=0; i<replyVect.size(); i++){
+            fprintf(fp, "%d ", replyVect[i].reply->ID);
+            fprintf(fp, "%f ", replyVect[i].confidence);
+        }
+        fprintf(fp, "\n");
     }
     
 };
@@ -76,6 +82,7 @@ public:
 	float firstResponseConf();
 	void feedInput(vector<string> &input);
 	void feedOutput(vector<string> &input, vector<string> &suggestedOutput);
+    bool printToEmpty = false;
 
 
 private:

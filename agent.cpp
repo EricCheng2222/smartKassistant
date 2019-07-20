@@ -13,8 +13,15 @@
 #include <string.h>
 using namespace std;
 
+
+float confirmConfidence = 0.9;
+float askConfidence = 0.05;
+
+
+
+
 void agent::getInput(){
-    printf(">");
+    printf("\n>");
     getline(cin, input);
     tokenize();
 }
@@ -35,15 +42,16 @@ void agent::action(){
         dict.feedInput(inputTokens);
         while (true) {
             confidence = dict.firstResponseConf();
-            if(confidence>=0.9){
+            if(confidence>=confirmConfidence){
                 //reply
                 dict.printFirstToken();
                 dict.popFirstItem();
             }
-            else if(confidence>=0.5){
+            else if(confidence>=askConfidence){
                 //ask if response correct, yes-->respond, no-->learn
                 char ans;
                 dict.printFirstToken();
+                printf("(good response?)");
                 ans = getchar();    getchar();//get rid off input
                 tolower(ans);
                 
@@ -52,18 +60,25 @@ void agent::action(){
                     dict.popFirstItem();
                 }
                 else if(ans == 'n'){
-                    printf("please give me suggested reply:");
+                    printf("suggested reply:");
                     getline(cin, suggestedReply);
                     parse();
                     dict.feedOutput(inputTokens, outputTokens);
+                    break;
                 }
             }
             else{
                 //learn
-                printf("please give me suggested reply:");
+                if(dict.printToEmpty==true && confidence==-1.0){
+                    dict.printToEmpty = false;
+                    break;
+                }
+                printf("suggested reply:");
                 getline(cin, suggestedReply);
                 parse();
                 dict.feedOutput(inputTokens, outputTokens);
+                break;
+                //no bug so far
             }
         }
     }
@@ -81,7 +96,6 @@ void agent::tokenize(){
         }
         inputTokens[lastToken].push_back(input[i]);
     }
-    ;
 }
 
 void agent::parse(){

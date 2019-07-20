@@ -7,20 +7,16 @@
 
 #include "dictionary.hpp"
 #include <string.h>
-
-
-
-
-
-
-
-
+#include <stdio.h>
 
 
 void dictionary::save(){
+    FILE *fptr = fopen("/Users/eric/Desktop/kassistant/longTermMem.txt", "w");
+    fprintf(fptr, "%lld\n", vocab.size());
 	for(unsigned long i=0; i<vocab.size(); i++){
-		vocab[i].print();
+		vocab[i].print(fptr);
 	}
+    fclose(fptr);
 }
 
 
@@ -35,6 +31,22 @@ void dictionary::printFirstToken(){
 
 
 void dictionary::popFirstItem(){
+    bool found = false;
+    for (unsigned int i=0; i<outVocab[maxIte].nextVect.size(); i++) {
+        found = false;
+        for (unsigned int j=0; j<outVocab.size(); j++) {
+            if(strcmp(outVocab[maxIte].nextVect[i].next->word.c_str(), outVocab[j].word.c_str())==0){
+                found = true;
+                outVocab[j].pointedConfidence += outVocab[maxIte].pointedConfidence;
+                break;
+            }
+        }
+        if(!found){
+            printToEmpty = true;
+            outVocab.push_back(*outVocab[maxIte].nextVect[i].next);
+            outVocab.back().pointedConfidence += outVocab[maxIte].nextVect[i].confidence;
+        }
+    }
 	outVocab.erase(outVocab.begin() + maxIte);
 }
 
@@ -54,6 +66,7 @@ float dictionary::firstResponseConf(){
 
 
 void dictionary::feedInput(vector<string> &input){
+    outVocab.clear();
 	for(unsigned long i=0; i<input.size()-1; i++){
 		int isExistInput = isExist(input[i]);
 		if(isExistInput==-1)
@@ -61,6 +74,12 @@ void dictionary::feedInput(vector<string> &input){
 		learnNextWord(input[i], input[i+1]);
         visitWordToReply(input[i]);//visit input[i] to determine reply word
 	}
+    if(input.size()==1){
+        int isExistInput = isExist(input[0]);
+        if(isExistInput==-1)
+            addWord(input[0]);
+        visitWordToReply(input[0]);//visit input[i] to determine reply word
+    }
 }
 
 
@@ -90,7 +109,7 @@ void dictionary::feedOutput(vector<string> &vectIn, vector<string> &vectOut){
     
     //add next pointer
     int dst, src;
-    for (unsigned int i=0; i<vectOut.size()-2; i++) {
+    for (unsigned int i=0; i<vectOut.size()-1; i++) {
         dst = isExist(vectOut[i]);
         src = isExist(vectOut[i+1]);
         addNextPointer(dst, src);
@@ -160,20 +179,29 @@ void dictionary::addReplyPointer(int src, int dst){
 
 
 void dictionary::visitWordToReply(string s){//heat map for reply
+    vector<dictionaryItem> tmpOutVocab;
+    tmpOutVocab.clear();
     int index = isExist(s);
     bool found = false;
     for (unsigned int i=0; i<vocab[index].replyVect.size(); i++) {
-        for(unsigned int j=0; j<outVocab.size(); j++){
-            found = false;
-            if(strcmp(outVocab[j].word.c_str(), vocab[index].replyVect[i].reply->word.c_str())){
-                outVocab[j].pointedConfidence += 0.01;
+        tmpOutVocab.push_back(*vocab[index].replyVect[i].reply);
+        tmpOutVocab.back().pointedConfidence += vocab[index].replyVect[i].confidence;
+    }
+    
+    
+    for (unsigned int i=0; i<tmpOutVocab.size(); i++) {
+        found = false;
+        for (unsigned int j=0; j<outVocab.size(); j++) {
+            if(strcmp(tmpOutVocab[i].word.c_str(), outVocab[j].word.c_str())==0){
+                outVocab[j].pointedConfidence += tmpOutVocab[i].pointedConfidence;
                 found = true;
                 break;
             }
         }
-        if(found == false){
-            outVocab.push_back(*vocab[index].replyVect[i].reply);
-            outVocab.back().pointedConfidence += 0.01;
+        if(!found){
+            printToEmpty = true;
+            outVocab.push_back(tmpOutVocab[i]);
+            outVocab.back().pointedConfidence += tmpOutVocab[i].pointedConfidence;
         }
     }
 }
